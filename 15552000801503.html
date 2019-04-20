@@ -1,0 +1,340 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  OkRx网络(二)------restFul Api接口定义 - 
+  
+  </title>
+ <meta name="description" content="">
+ <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+    <script src="asset/highlightjs/highlight.pack.js"></script>
+    <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+<div id="header">
+    <h1><a href="index.html"></a></h1>
+</div>
+
+</nav>
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+      <li><a href="index.html">Home</a></li>
+      
+        <li class="divider"></li>
+        <li><label>Android Debris框架</label></li>
+
+          
+            <li><a title="Android Debris框架" href="15551612448477.html">Android Debris框架</a></li>
+          
+            <li><a title="网络" href="15551615152372.html">网络</a></li>
+          
+
+      
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+        <section id="main-content" role="main" class="scroll-container">
+
+          <div class="row">
+            <div class="large-3 medium-3 columns">
+              <div class="hide-for-small">
+                <div class="sidebar">
+                <nav>
+                  <ul id="side-nav" class="side-nav">
+
+                    
+                      <li class="side-title"><span>Android Debris框架</span></li>
+                        
+                          <li><a title="Android Debris框架" href="15551612448477.html">Android Debris框架</a></li>
+                        
+                          <li><a title="网络" href="15551615152372.html">网络</a></li>
+                        
+
+                    
+                  </ul>
+                </nav>
+                </div>
+              </div>
+            </div>
+            <div class="large-9 medium-9 columns">
+
+ <div class="markdown-body">
+<h1>OkRx网络(二)------restFul Api接口定义</h1>
+
+<h5 id="toc_0">普通请求【GET POST PUT DELETE HEAD PATCH】</h5>
+
+<pre><code class="language-java">//请求方式和接口相对路径
+@GET(value = &quot;/rest/version&quot;)
+//[可选]
+//当定义的接口与当前接口类请求的base url、tokenName或contentType不一致时需要添加注解
+@BaseUrlTypeName(value = &quot;base url&quot;,contentType = RequestContentType.Form)
+//数据返回类型
+@DataParam(value = VersionBean.class)
+//定义请求方法和参数
+RetrofitParams requestOutsideUrl(
+        @Param(&quot;versionName&quot;) String versionName,
+        @Param(&quot;deviceNumber&quot;) String deviceNumber
+);
+</code></pre>
+
+<h5 id="toc_1">DELETE请求</h5>
+
+<blockquote>
+<p><font color=gray size=3>DELETE请求时参数拼接与GET一致,传入注解使用@DelQuery;</font></p>
+</blockquote>
+
+<pre><code class="language-java">@DELETE(value = &quot;/rest/order/{id}?status={status}&quot;)
+@DataParam(value = xxxxx.class)
+RetrofitParams requestOrderDetail(
+        @Path(&quot;id&quot;) String id,
+        @DelQuery(&quot;status&quot;) String status
+);
+</code></pre>
+
+<h5 id="toc_2">Url地址动态替换【@Path注解使用】</h5>
+
+<blockquote>
+<p><font color=gray size=3>部分url替换</font></p>
+</blockquote>
+
+<pre><code class="language-java">@GET(value = &quot;/rest/order/{id}&quot;)
+@DataParam(value = xxxxx.class)
+RetrofitParams requestOrderDetail(
+        @Path(&quot;id&quot;) String id
+);
+</code></pre>
+
+<blockquote>
+<p><font color=gray size=3>全部url替换,此时也可配合isFullUrl=true来使用,以此判断传入的url相对路径还是绝对路径；以便在请求时是否要拼接base url处理;</font></p>
+</blockquote>
+
+<pre><code class="language-java">@GET(value = &quot;{url}&quot;)
+@DataParam(value = xxxxx.class)
+RetrofitParams requestOrderDetail(
+        @Path(&quot;url&quot;) String url
+);
+</code></pre>
+
+<h5 id="toc_3">请求头Header、Headers【@HeaderPart使用】</h5>
+
+<pre><code class="language-java">@POST(value = &quot;相对url&quot;)
+@Header(name = &quot;token&quot;, value = &quot;xxxxx&quot;)
+@Headers({&quot;key1:value1&quot;, &quot;key2:{value2}&quot;})
+@DataParam(value = BaseBean.class)
+RetrofitParams payCode(
+    @HeaderPart(&quot;value2&quot;) String value2
+);
+</code></pre>
+
+<h5 id="toc_4">请求返回字节、流、文件类型</h5>
+
+<blockquote>
+<p><font color=gray size=3>1.返回类型File或byte[],则responseDataType = ResponseDataType.byteData;<br/>
+2.返回类型InputStream,则responseDataType = ResponseDataType.stream;<br/>
+3.对于目标文件参数@Param需要设置属性isTargetFile = true;</font></p>
+</blockquote>
+
+<pre><code class="language-java">@GET(value = &quot;url地址&quot;)
+@DataParam(value = File.class, responseDataType = ResponseDataType.byteData)
+RetrofitParams requestXXXX(
+        @Param(&quot;username&quot;) String username,
+        @Param(isTargetFile = true) File file
+);
+</code></pre>
+
+<blockquote>
+<p><font color=gray size=3>其中目标文件可通过以下方式传入</font></p>
+</blockquote>
+
+<pre><code class="language-java">@ApiCheckAnnotation
+public void requestXXXX(OnSuccessfulListener&lt;File&gt; successfulListener) {
+    BaseSubscriber baseSubscriber = new BaseSubscriber&lt;File, GetService&gt;(this);
+    baseSubscriber.setOnSuccessfulListener(successfulListener);
+    requestObject(IGetAPI.class, this, baseSubscriber,
+    new Func2&lt;RetrofitParams, IGetAPI, HashMap&lt;String, Object&gt;&gt;() {
+        @Override
+        public RetrofitParams call(IGetAPI getAPI,
+        HashMap&lt;String, Object&gt; params) {
+            //【保存的目标文件】
+            File file = StorageManager.createImageFile(&quot;test_image.jpg&quot;);
+            return getAPI.requestXXXX(file);
+        }
+    });
+}
+</code></pre>
+
+<h5 id="toc_5">接口请求定义</h5>
+
+<pre><code class="language-java">//若不需要token验证则加注解即可
+//@ApiCheckAnnotation
+-------
+//网络请求-不做缓存
+//@ApiCheckAnnotation(isTokenValid = true)
+-------
+//网络缓存会根据设置的cacheKey+请求条件作缓存处理;
+//(如[recommand_info_siteId_42_pageSize_1_pageNumber_20])
+//网络请求-在缓存未失效时网络数据与缓存只会返回其中一个,
+//缓存失效后先请求网络-&gt;再缓存-&gt;最后返回;
+//@ApiCheckAnnotation(callStatus = CallStatus.OnlyCache, 
+//cacheTime = 1, cacheTimeUnit = TimeUnit.MINUTES,
+//cacheKey = &quot;recommand_info&quot;)
+-------
+//网络请求-在缓存未失败时获取到网络数据和缓存数据均会回调,
+//缓存失效后先请求网络-&gt;再缓存-&gt;最后返回(即此时只作网络数据的回调);
+//@ApiCheckAnnotation(callStatus = CallStatus.PersistentIntervalCache,
+//cacheIntervalTime = 10000, cacheTime = 1, cacheTimeUnit = TimeUnit.MINUTES,
+//cacheKey = &quot;recommand_info&quot;)
+-------
+//请求时间限制;可在请求方法或接口定义上添加;接口定义上设置的值优先于请求方法设置的值;
+@ApiCheckAnnotation(callStatus = CallStatus.PersistentIntervalCache)
+@RequestTimeLimit(totalTime = &quot;2&quot;, unit = TimeUnit.SECONDS)
+public void requestXXX(final int siteId,
+OnSuccessfulListener&lt;ReturnBean&gt; successfulListener) {
+    //请求订阅对象
+    BaseSubscriber baseSubscriber = 
+    new BaseSubscriber&lt;ReturnBean, GetService&gt;(this);
+    //设置成功监听器
+baseSubscriber.setOnSuccessfulListener(successfulListener);
+    //设置扩展数据(将在回调中返回)
+    //baseSubscriber.setExtra(&quot;&quot;);
+    //请求api
+    requestObject(IGetAPI.class, this, baseSubscriber,
+    new Func2&lt;RetrofitParams, IGetAPI, HashMap&lt;String, Object&gt;&gt;() {
+        @Override
+        public RetrofitParams call(IGetAPI getAPI,
+        HashMap&lt;String, Object&gt; params) {
+            HashMap&lt;String, String&gt; map = new HashMap&lt;&gt;();
+            map.put(&quot;parame1&quot;, &quot;123&quot;);
+            return getAPI.requestXXX(siteId, map, 3, 
+            CallStatus.PersistentIntervalCache);
+        }
+    });
+}
+</code></pre>
+
+<blockquote>
+<p><font color=gray size=3>其中OnSuccessfulListener<ReturnBean> successfulListener监听如下示例:</font></p>
+</blockquote>
+
+<pre><code class="language-java">private OnSuccessfulListener&lt;RecommandInfo&gt; recommandListener = 
+new OnSuccessfulListener&lt;RecommandInfo&gt;() {
+    @Override
+    public void onSuccessful(RecommandInfo recommandInfo, DataType dataType,
+    Object... extras) {
+        //如果dataType==DataType.EmptyForOnlyCache则recommandInfo==null
+        //具体接口请求成功回调;
+        //如果有缓存且存在缓存和网络均会回调时则isLastCall==true表示最后一次回调
+    }
+
+    @Override
+    public void onError(RecommandInfo recommandInfo, ErrorType errorType,
+    Object... extras) {
+        //【可选】具体接口请求失败回调
+    }
+
+    @Override
+    public void onCompleted(Object... extras) {
+        //【可选】具体接口请求完成回调
+    }
+};
+</code></pre>
+
+
+</div>
+
+<br /><br />
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15552026326802.html"  title="Previous Post: 位、与、移位、幂次等相关运算">&laquo; 位、与、移位、幂次等相关运算</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15552021345022.html" 
+	        title="Next Post: 日志------Logger">日志------Logger &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15552000801503.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>  
+</div></div>
+
+
+<div class="page-bottom">
+  <div class="row">
+  <hr />
+  <div class="small-9 columns">
+  <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+  <div class="small-3 columns">
+  <p class="copyright text-right"><a href="#header">TOP</a></p>
+  </div>
+   
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+    
+    
+    <script src="asset/js/foundation.min.js"></script>
+    <script src="asset/js/foundation/foundation.offcanvas.js"></script>
+    <script>
+      $(document).foundation();
+
+     
+    </script>
+    
+
+
+  </body>
+</html>
